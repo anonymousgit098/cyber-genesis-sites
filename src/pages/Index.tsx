@@ -82,8 +82,8 @@ const Index = () => {
         setProgress(prev => Math.min(prev + 10, 90));
       }, 200);
 
-      // Try to connect to LM Studio with simplified CORS handling
-      const response = await fetch('http://localhost:1234/v1/completions', {
+      // Use proxy endpoint to avoid CORS issues
+      const response = await fetch('/api/lmstudio/v1/completions', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
