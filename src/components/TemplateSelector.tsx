@@ -17,10 +17,10 @@ interface TemplateSelectorProps {
 
 const TemplateSelector: React.FC<TemplateSelectorProps> = ({ templates, onSelect }) => {
   return (
-    <Card className="bg-black/40 border-white/10 backdrop-blur-lg p-6">
+    <Card className="p-6 bg-white shadow-sm border-slate-200">
       <div className="flex items-center gap-2 mb-4">
-        <Zap className="h-5 w-5 text-yellow-400" />
-        <h3 className="text-lg font-semibold">Quick Templates</h3>
+        <Zap className="h-5 w-5 text-blue-600" />
+        <h3 className="text-lg font-semibold text-slate-900">Quick Templates</h3>
       </div>
       <div className="grid grid-cols-2 gap-3">
         {templates.map((template, index) => (
@@ -28,10 +28,10 @@ const TemplateSelector: React.FC<TemplateSelectorProps> = ({ templates, onSelect
             key={index}
             variant="outline"
             onClick={() => onSelect(template)}
-            className="h-auto p-4 flex flex-col items-start gap-2 border-white/20 hover:bg-white/10 hover:border-purple-500/50"
+            className="h-auto p-4 flex flex-col items-start gap-2 border-slate-200 hover:bg-blue-50 hover:border-blue-300 text-left"
           >
-            <div className="font-semibold text-left">{template.name}</div>
-            <div className="text-xs text-gray-400 text-left">{template.description}</div>
+            <div className="font-semibold text-slate-900">{template.name}</div>
+            <div className="text-xs text-slate-600">{template.description}</div>
           </Button>
         ))}
       </div>

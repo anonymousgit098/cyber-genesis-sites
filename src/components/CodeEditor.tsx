@@ -43,14 +43,14 @@ const CodeEditor: React.FC<CodeEditorProps> = ({
     <div className="h-full flex flex-col space-y-4">
       {/* File Selector */}
       <div className="flex items-center gap-3">
-        <FileText className="h-4 w-4 text-gray-400" />
+        <FileText className="h-4 w-4 text-slate-600" />
         <Select value={selectedFile} onValueChange={onFileSelect}>
-          <SelectTrigger className="w-full bg-white/5 border-white/20">
+          <SelectTrigger className="w-full bg-white border-slate-200">
             <SelectValue placeholder="Select a file to edit" />
           </SelectTrigger>
-          <SelectContent className="bg-gray-900 border-white/20">
+          <SelectContent className="bg-white border-slate-200">
             {files.map((file) => (
-              <SelectItem key={file.path} value={file.path} className="text-white hover:bg-white/10">
+              <SelectItem key={file.path} value={file.path} className="text-slate-900 hover:bg-slate-50">
                 {file.path}
               </SelectItem>
             ))}
@@ -65,22 +65,22 @@ const CodeEditor: React.FC<CodeEditorProps> = ({
             ref={editorRef}
             value={currentContent}
             onChange={(e) => handleContentChange(e.target.value)}
-            className="w-full h-full bg-gray-900/50 border border-white/10 rounded-lg p-4 font-mono text-sm text-gray-100 resize-none focus:outline-none focus:ring-2 focus:ring-purple-500"
+            className="w-full h-full bg-slate-50 border border-slate-200 rounded-lg p-4 font-mono text-sm text-slate-900 resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             placeholder="Start editing your code..."
             spellCheck={false}
           />
           
           {/* Language indicator */}
           <div className="absolute top-2 right-2">
-            <span className="px-2 py-1 bg-purple-500/20 text-purple-300 text-xs rounded border border-purple-500/30">
+            <span className="px-2 py-1 bg-blue-100 text-blue-700 text-xs rounded border border-blue-200">
               {getLanguageFromFile(selectedFile)}
             </span>
           </div>
         </div>
       ) : (
-        <div className="flex-1 flex items-center justify-center text-gray-500">
+        <div className="flex-1 flex items-center justify-center text-slate-500">
           <div className="text-center">
-            <FileText className="h-12 w-12 mx-auto mb-4 text-gray-600" />
+            <FileText className="h-12 w-12 mx-auto mb-4 text-slate-400" />
             <p>Select a file to start editing</p>
           </div>
         </div>
