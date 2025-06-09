@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -64,7 +65,6 @@ const Index = () => {
   const [generatedFiles, setGeneratedFiles] = useState<GeneratedFile[]>([]);
   const [selectedFile, setSelectedFile] = useState<string>('');
   const [fileContents, setFileContents] = useState<{ [key: string]: string }>({});
-  const [previewUrl, setPreviewUrl] = useState<string>('');
   const [showJsonViewer, setShowJsonViewer] = useState(false);
   const [lastResponse, setLastResponse] = useState<any>(null);
 
@@ -83,16 +83,20 @@ const Index = () => {
         setProgress(prev => Math.min(prev + 10, 90));
       }, 200);
 
+      // Try to connect to LM Studio with proper CORS handling
       const response = await fetch('http://localhost:1234/v1/completions', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Accept': 'application/json',
         },
+        mode: 'cors',
         body: JSON.stringify({
           model: 'local-model',
           prompt: `Generate a complete website based on this prompt: "${prompt}". Return only valid JSON in this format: {"files":[{"path":"index.html","content":"..."},{"path":"styles.css","content":"..."}],"entry":"index.html"}`,
           max_tokens: 2000,
-          temperature: 0.7
+          temperature: 0.7,
+          stream: false
         })
       });
 
@@ -100,16 +104,17 @@ const Index = () => {
       setProgress(100);
 
       if (!response.ok) {
-        throw new Error('LLM server not available');
+        throw new Error(`LM Studio server error: ${response.status}`);
       }
 
       const data = await response.json();
       let parsedResponse: LLMResponse;
 
       try {
+        // Try to parse the LLM response
         parsedResponse = JSON.parse(data.choices[0].text);
       } catch {
-        // Fallback demo response
+        // Fallback demo response if parsing fails
         parsedResponse = {
           files: [
             {
@@ -123,20 +128,39 @@ const Index = () => {
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <header>
-        <h1>Welcome to Your Generated Website</h1>
-        <p>This is a demo website generated based on your prompt: "${prompt}"</p>
+    <header class="hero">
+        <div class="container">
+            <h1>Welcome to Your Generated Website</h1>
+            <p class="subtitle">This is a professional website generated based on your prompt: "${prompt}"</p>
+            <button class="cta-button">Get Started</button>
+        </div>
     </header>
-    <main>
-        <section>
-            <h2>Features</h2>
-            <ul>
-                <li>Responsive design</li>
-                <li>Clean layout</li>
-                <li>Modern styling</li>
-            </ul>
+    <main class="main-content">
+        <section class="features">
+            <div class="container">
+                <h2>Key Features</h2>
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <h3>Responsive Design</h3>
+                        <p>Looks great on all devices</p>
+                    </div>
+                    <div class="feature-card">
+                        <h3>Modern UI</h3>
+                        <p>Clean and professional appearance</p>
+                    </div>
+                    <div class="feature-card">
+                        <h3>Fast Loading</h3>
+                        <p>Optimized for performance</p>
+                    </div>
+                </div>
+            </div>
         </section>
     </main>
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2024 Generated Website. All rights reserved.</p>
+        </div>
+    </footer>
     <script src="app.js"></script>
 </body>
 </html>`
@@ -150,66 +174,146 @@ const Index = () => {
 }
 
 body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     line-height: 1.6;
     color: #333;
+    background: #ffffff;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+.hero {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    min-height: 100vh;
-}
-
-header {
+    color: white;
+    padding: 80px 0;
     text-align: center;
-    padding: 4rem 2rem;
-    background: rgba(255, 255, 255, 0.95);
-    margin: 2rem;
-    border-radius: 10px;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
 }
 
-h1 {
-    font-size: 2.5rem;
+.hero h1 {
+    font-size: 3rem;
     margin-bottom: 1rem;
+    font-weight: 700;
+}
+
+.subtitle {
+    font-size: 1.25rem;
+    margin-bottom: 2rem;
+    opacity: 0.9;
+}
+
+.cta-button {
+    background: #fff;
+    color: #667eea;
+    padding: 12px 30px;
+    border: none;
+    border-radius: 8px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+}
+
+.cta-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+}
+
+.main-content {
+    padding: 80px 0;
+}
+
+.features h2 {
+    text-align: center;
+    font-size: 2.5rem;
+    margin-bottom: 3rem;
     color: #2c3e50;
 }
 
-main {
-    max-width: 800px;
-    margin: 0 auto;
-    padding: 2rem;
+.feature-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
 }
 
-section {
-    background: white;
+.feature-card {
+    background: #f8f9fa;
     padding: 2rem;
-    border-radius: 10px;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+    border-radius: 12px;
+    text-align: center;
+    border: 1px solid #e9ecef;
+    transition: transform 0.2s ease;
 }
 
-h2 {
-    color: #34495e;
+.feature-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+}
+
+.feature-card h3 {
+    font-size: 1.5rem;
     margin-bottom: 1rem;
+    color: #495057;
 }
 
-ul {
-    list-style-position: inside;
+.footer {
+    background: #2c3e50;
+    color: white;
+    text-align: center;
+    padding: 2rem 0;
 }
 
-li {
-    margin-bottom: 0.5rem;
+@media (max-width: 768px) {
+    .hero h1 {
+        font-size: 2rem;
+    }
+    
+    .feature-grid {
+        grid-template-columns: 1fr;
+    }
 }`
             },
             {
               path: "app.js",
-              content: `console.log('Website generated successfully!');
+              content: `console.log('Professional website generated successfully!');
 
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('DOM loaded');
+    console.log('DOM loaded and ready');
     
-    // Add some interactive features
-    const header = document.querySelector('header');
-    if (header) {
-        header.addEventListener('click', function() {
-            this.style.transform = this.style.transform === 'scale(1.02)' ? 'scale(1)' : 'scale(1.02)';
+    // Add smooth scrolling for better UX
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            e.preventDefault();
+            const target = document.querySelector(this.getAttribute('href'));
+            if (target) {
+                target.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            }
+        });
+    });
+    
+    // Add interactive hover effects
+    const featureCards = document.querySelectorAll('.feature-card');
+    featureCards.forEach(card => {
+        card.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateY(-5px)';
+        });
+        
+        card.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateY(0)';
+        });
+    });
+    
+    // CTA button interaction
+    const ctaButton = document.querySelector('.cta-button');
+    if (ctaButton) {
+        ctaButton.addEventListener('click', function() {
+            alert('Welcome! This is your generated website.');
         });
     }
 });`
@@ -234,18 +338,10 @@ document.addEventListener('DOMContentLoaded', function() {
         setSelectedFile(parsedResponse.files[0].path);
       }
 
-      // Create preview URL
-      const entryFile = parsedResponse.files.find(f => f.path === parsedResponse.entry);
-      if (entryFile) {
-        const blob = new Blob([entryFile.content], { type: 'text/html' });
-        const url = URL.createObjectURL(blob);
-        setPreviewUrl(url);
-      }
-
       toast.success('Website generated successfully!');
     } catch (error) {
       console.error('Generation failed:', error);
-      toast.error('Failed to generate website. Make sure your local LLM is running on localhost:1234');
+      toast.error('Failed to connect to LM Studio. Make sure it\'s running on localhost:1234');
     } finally {
       setIsGenerating(false);
       setProgress(0);
@@ -264,13 +360,6 @@ document.addEventListener('DOMContentLoaded', function() {
         file.path === path ? { ...file, content } : file
       )
     );
-
-    // If updating the entry file, refresh preview
-    if (path === 'index.html') {
-      const blob = new Blob([content], { type: 'text/html' });
-      const url = URL.createObjectURL(blob);
-      setPreviewUrl(url);
-    }
   };
 
   const downloadZip = async () => {
@@ -294,6 +383,12 @@ document.addEventListener('DOMContentLoaded', function() {
     
     toast.success('Website downloaded successfully!');
   };
+
+  // Create project object for PreviewFrame
+  const currentProject = generatedFiles.length > 0 ? {
+    files: generatedFiles,
+    entry: "index.html"
+  } : null;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
@@ -432,7 +527,10 @@ document.addEventListener('DOMContentLoaded', function() {
               <h3 className="text-lg font-semibold text-slate-900">Live Preview</h3>
             </div>
             
-            <PreviewFrame url={previewUrl} />
+            <PreviewFrame 
+              project={currentProject}
+              fileContents={fileContents}
+            />
           </Card>
         </div>
       </div>
